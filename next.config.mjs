@@ -1,5 +1,12 @@
+let userConfig = undefined
+try {
+  userConfig = await import('./v0-user-next.config')
+} catch (e) {
+  // ignore error
+}
+
 /** @type {import('next').NextConfig} */
-const baseConfig = {
+const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -7,36 +14,35 @@ const baseConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true, // Nonaktifkan optimisasi gambar jika menggunakan external host seperti ibb.co
+    unoptimized: true,
   },
-  // Hapus experimental flags yang tidak diperlukan
-  headers: async () => [
-    {
-      source: '/:path*',
-      headers: [
-        {
-          key: 'X-Frame-Options',
-          value: 'DENY',
-        },
-        {
-          key: 'X-Content-Type-Options',
-          value: 'nosniff',
-        }
-      ],
-    },
-  ],
-};
+  experimental: {
+    webpackBuildWorker: true,
+    parallelServerBuildTraces: true,
+    parallelServerCompiles: true,
+  },
+}
 
-// Merge dengan user config jika ada
-const userConfig = (async () => {
-  try {
-    return (await import('./v0-user-next.config')).default;
-  } catch {
-    return {};
+mergeConfig(nextConfig, userConfig)
+
+function mergeConfig(nextConfig, userConfig) {
+  if (!userConfig) {
+    return
   }
-})();
 
-export default {
-  ...baseConfig,
-  ...(await userConfig),
-};
+  for (const key in userConfig) {
+    if (
+      typeof nextConfig[key] === 'object' &&
+      !Array.isArray(nextConfig[key])
+    ) {
+      nextConfig[key] = {
+        ...nextConfig[key],
+        ...userConfig[key],
+      }
+    } else {
+      nextConfig[key] = userConfig[key]
+    }
+  }
+}
+
+export default nextConfig
