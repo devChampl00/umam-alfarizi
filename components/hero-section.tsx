@@ -41,7 +41,7 @@ export function HeroSection() {
               <Button
                 variant="outline"
                 asChild
-                className="border-zinc-400 text-zinc-100 hover:bg-zinc-700 hover:text-white hover:border-zinc-300"
+                className="border-purple-500 text-purple-500 hover:bg-zinc-700 hover:text-white hover:border-zinc-300"
               >
                 <a href="#portfolio">View My Work</a>
               </Button>
